@@ -6,6 +6,7 @@
 
 ### :sparkles: New features
 
+- Support border radius and stroke properties for images [Taiga #497](https://tree.taiga.io/project/penpot/us/497)
 - Allow to align items relative to groups [Taiga #2533](https://tree.taiga.io/project/penpot/us/2533)
 - Scroll bars [Taiga #2550](https://tree.taiga.io/project/penpot/task/2550)
 - Add select layer option to context menu [Taiga #2474](https://tree.taiga.io/project/penpot/us/2474)

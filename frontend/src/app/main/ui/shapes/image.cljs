@@ -6,11 +6,12 @@
 
 (ns app.main.ui.shapes.image
   (:require
-   [app.common.geom.shapes :as geom]
+   [app.common.geom.shapes :as gsh]
    [app.config :as cfg]
+   [app.main.ui.context :as muc]
    [app.main.ui.shapes.attrs :as attrs]
+   [app.main.ui.shapes.custom-stroke :refer [shape-custom-stroke]]
    [app.main.ui.shapes.embed :as embed]
-   [app.util.dom :as dom]
    [app.util.object :as obj]
    [rumext.alpha :as mf]))
 
@@ -23,7 +24,10 @@
         uri   (cfg/resolve-file-media metadata)
         embed (embed/use-data-uris [uri])
 
-        transform (geom/transform-matrix shape)
+        render-id  (mf/use-ctx muc/render-ctx)
+        filter-id (str "image-" render-id)
+
+        transform (gsh/transform-matrix shape)
         props (-> (attrs/extract-style-attrs shape)
                   (obj/merge!
                    #js {:x x
@@ -32,13 +36,26 @@
                         :width width
                         :height height
                         :preserveAspectRatio "none"
-                        :data-loading (str (not (contains? embed uri)))}))
+                        :data-loading (str (not (contains? embed uri)))
+                        :filter (str "url(#" filter-id ")")}))
 
-        on-drag-start (fn [event]
-                        ;; Prevent browser dragging of the image
-                        (dom/prevent-default event))]
+        stroke-width (:stroke-width shape 0)
+        margin (gsh/shape-stroke-margin shape stroke-width)]
 
-    [:> "image" (obj/merge!
-                 props
-                 #js {:xlinkHref (get embed uri uri)
-                      :onDragStart on-drag-start})]))
+    [:g
+     [:defs
+      [:filter {:id filter-id
+                :x (- x (+ stroke-width margin))
+                :y (- y (+ stroke-width margin))
+                :width (+ width (* 2 (+ stroke-width margin)))
+                :height (+ height (* 2 (+ stroke-width margin)))
+                :filterUnits "userSpaceOnUse"}
+       [:feImage {:xlinkHref (get embed uri uri)
+                  :x x
+                  :y y
+                  :width width
+                  :height height
+                  :preserveAspectRatio "none"}]
+       [:feComposite {:in2 "SourceGraphic" :operator "over" :result "fill-area"}]]]
+     [:& shape-custom-stroke {:shape shape}
+      [:> :rect props]]]))

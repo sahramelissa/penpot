@@ -213,7 +213,7 @@
                         (obj/without ["style"]))]]
 
      [:use {:xlinkHref (str "#" shape-id)
-            :mask (str "url(#" stroke-mask-id ")")
+            ;; :mask (str "url(#" stroke-mask-id ")")
             :style (-> (obj/get base-props "style")
                        (obj/clone)
                        (obj/update! "strokeWidth" * 2)
