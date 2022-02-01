@@ -27,6 +27,7 @@
         render-id  (mf/use-ctx muc/render-ctx)
         filter-id (str "image-" render-id)
 
+        filter (str "url(#" filter-id ")")
         transform (gsh/transform-matrix shape)
         props (-> (attrs/extract-style-attrs shape)
                   (obj/merge!
@@ -37,7 +38,8 @@
                         :height height
                         :preserveAspectRatio "none"
                         :data-loading (str (not (contains? embed uri)))
-                        :filter (str "url(#" filter-id ")")}))
+                        ;; :filter filter
+                        }))
 
         stroke-width (:stroke-width shape 0)
         margin (gsh/shape-stroke-margin shape stroke-width)]
@@ -57,5 +59,5 @@
                   :height height
                   :preserveAspectRatio "none"}]
        [:feComposite {:in2 "SourceGraphic" :operator "over" :result "fill-area"}]]]
-     [:& shape-custom-stroke {:shape shape}
+     [:& shape-custom-stroke {:shape shape :filter filter}
       [:> :rect props]]]))

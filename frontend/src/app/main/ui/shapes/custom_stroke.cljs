@@ -194,6 +194,7 @@
         child        (obj/get props "children")
         base-props   (obj/get child "props")
         elem-name    (obj/get child "type")
+        filter       (obj/get props "filter")
         stroke-mask-id (str "outer-stroke-" render-id)
         shape-id (str "stroke-shape-" render-id)
 
@@ -213,7 +214,7 @@
                         (obj/without ["style"]))]]
 
      [:use {:xlinkHref (str "#" shape-id)
-            ;; :mask (str "url(#" stroke-mask-id ")")
+            :mask (str "url(#" stroke-mask-id ")")
             :style (-> (obj/get base-props "style")
                        (obj/clone)
                        (obj/update! "strokeWidth" * 2)
@@ -221,6 +222,7 @@
                        (obj/set! "fill" "none"))}]
 
      [:use {:xlinkHref (str "#" shape-id)
+            :filter filter
             :style (-> (obj/get base-props "style")
                        (obj/clone)
                        (obj/without ["stroke" "strokeWidth" "strokeOpacity" "strokeStyle" "strokeDasharray"]))}]]))
@@ -233,6 +235,7 @@
   [props]
   (let [render-id  (mf/use-ctx muc/render-ctx)
         child      (obj/get props "children")
+        filter     (obj/get props "filter")
         base-props (obj/get child "props")
         elem-name  (obj/get child "type")
         shape      (obj/get props "shape")
@@ -254,6 +257,7 @@
       [:> elem-name shape-props]]
 
      [:use {:xlinkHref (str "#" shape-id)
+            :filter filter
             :clipPath clip-path}]]))
 
 
@@ -266,6 +270,9 @@
   {::mf/wrap-props false}
   [props]
   (let [child (obj/get props "children")
+        filter (obj/get props "filter")
+        child (obj/assoc-in! child [:props :style :filter] filter)
+
         shape (obj/get props "shape")
         stroke-width (:stroke-width shape 0)
         stroke-style (:stroke-style shape :none)
@@ -279,13 +286,12 @@
 
     (cond
       (and has-stroke? inner? closed?)
-      [:& inner-stroke {:shape shape}
+      [:& inner-stroke {:shape shape :filter filter}
        child]
 
       (and has-stroke? outer? closed?)
-      [:& outer-stroke {:shape shape}
+      [:& outer-stroke {:shape shape :filter filter}
        child]
 
       :else
       child)))
-

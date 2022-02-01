@@ -7,6 +7,7 @@
 (ns app.util.object
   "A collection of helpers for work with javascript objects."
   (:refer-clojure :exclude [set! get get-in merge clone contains?])
+  (:require-macros [app.util.object :refer [some-or]])
   (:require
    ["lodash/omit" :as omit]
    [cuerdas.core :as str]))
@@ -93,3 +94,32 @@
 (defn ^boolean in?
   [obj prop]
   (js* "~{} in ~{}" prop obj))
+
+(defn- get+! [o k*]
+  (if-some [child-obj (unchecked-get o k*)]
+    child-obj
+    (unchecked-set o k* #js{})))
+
+(defn assoc-in*
+  [obj ks* v]
+  (let [obj (some-or obj #js{})
+        inner-obj (reduce get+! obj (butlast ks*))]
+    (unchecked-set inner-obj (peek ks*) v)
+    obj))
+
+(defn wrap-key
+  "Returns `k` or, if it is a keyword, its name."
+  [k]
+  (cond-> k
+    (keyword? k) (name)))
+
+(defn assoc-in!
+  "Mutates the value in a nested object structure, where ks is a
+  sequence of keys and v is the new value. If any levels do not
+  exist, objects will be created.
+  ```
+  (j/assoc-in! o [:x :y] 10)
+  (j/assoc-in! o [.-x .-y] 10)
+  ```"
+  [obj ks v]
+  (assoc-in* obj (mapv wrap-key ks) v))
