@@ -23,6 +23,7 @@
 
 ### :sparkles: New features
 
+- On user settings, hide the theme selector as long as we only have one theme [Taiga #2610](https://tree.taiga.io/project/penpot/us/2610)
 - Add an option to hide artboards names on the viewport [Taiga #2034](https://tree.taiga.io/project/penpot/issue/2034)
 - Limit pasted object position to container boundaries [Taiga #2449](https://tree.taiga.io/project/penpot/us/2449)
 - Add new options for zoom widget in workspace and viewer mode [Taiga #896](https://tree.taiga.io/project/penpot/us/896)
